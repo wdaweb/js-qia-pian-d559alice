@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: 0;
+            font-family: 'Righteous', cursive;
+        }
+        html,body{
+            height: 100%;
+        }
+        body {
+            background: url(./img/background.jpg) no-repeat fixed center/cover;
+        }
+        .loading{
+            width: 100vw;
+            height: 100vh;
+            /* border: 1px solid #ddd; */
+            margin: auto;
+            position: absolute;
+            background: url(./img/start_bg.gif) no-repeat fixed center/cover;
+            z-index: 1;
+        }
+        .content{
+            width: 1364px;
+            height: 654px;
+            /* border: 1px solid #ddd; */
+            margin: auto;
+        }
+        .top{
+            width: 1364px;
+            height: 134px;
+            /* border: 1px solid #ddd; */
+            font-size: 120px;
+            text-align: center;
+            line-height: 132px;
+            color: rgb(240, 122, 25);
+            text-shadow: 3px 3px 5px #333;
+        }
+        .gamecard{
+            width: 1040px;
+            height: 520px;
+            /* border: 1px solid #ddd; */
+            float: left;
+        }
+        .card {
+            width: 110px;
+            height: 110px;
+            /* 設定子元素在3D空間內 */
+            transform-style: preserve-3d;
+            position: relative;
+            /* 整張卡片旋轉 */
+            transform: rotateY(180deg);
+            /* 0.5秒旋轉動畫 */
+            transition: transform 0.5s;
+            float: left;
+            margin: 10px;
+        }
+
+        .front {
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+        }
+
+        .back {
+            width: 100%;
+            height: 100%;
+            background-image: url(./img/fruitcard.png);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            /* 把背面的 div 轉到 front 後面貼齊 */
+            transform: rotateY(180deg);
+            backface-visibility: hidden;
+        }
+         .open {
+            transform: rotateY(0deg);
+        }
+        .gamebutton{
+            width:284px;
+            height: 480px;
+            background: rgba(240, 188, 172, 0.8);
+            border: 10px solid rgba(255, 255, 255,0.8);
+            border-radius: 10px;
+            float:right;
+            margin: 10px;
+            position: relative;
+        }
+        #btn-start{
+            width: 200px;
+            height: 70px;
+            background: rgb(226, 169, 169);
+            border: 5px solid rgb(243, 89, 89);
+            border-radius: 40px;
+            box-shadow: 3px 3px 5px #333;
+            color: rgb(248, 28, 28);
+            text-shadow: 3px 3px 5px #333;
+            font-size: 40px;
+            position: absolute;
+            top: 10px;
+            left: calc(50% - 100px);
+            cursor: pointer;
+        }
+
+        #btn-show{
+            width: 200px;
+            height: 50px;
+            background: rgba(64, 64, 64,0.8);
+            border: 5px solid rgba(230, 230, 230,0.8);
+            border-radius: 40px;
+            box-shadow: 3px 3px 5px #333;
+            color: rgba(255, 255, 255,0.8);
+            text-shadow: 3px 3px 5px #333;
+            font-size: 30px;
+            position: absolute;
+            top: 100px;
+            left: calc(50% - 100px);
+        }
+        #div-time{
+            font-size: 40px;
+            position: absolute;
+            top: 170px;
+            left: 40px;
+
+        }
+        #text-time{
+            width: 200px;
+            height: 90px;
+            background: rgba(212, 67, 96,0.8);
+            border: 5px solid rgba(238, 182, 108,0.8);
+            border-radius: 5px;
+            font-size: 60px;
+            line-height: 90px;
+            text-align: center;
+            position: absolute;
+            top: 50px;
+            left: 0px;
+        }
+        #div-score{
+            font-size: 40px;
+            position: absolute;
+            top: 320px;
+            left: 40px;
+        }
+        #text-score{
+            width: 200px;
+            height: 90px;
+            background: rgba(212, 67, 96,0.8);
+            border: 5px solid rgba(238, 182, 108,0.8);
+            border-radius: 5px;
+            font-size: 60px;
+            line-height: 90px;
+            text-align: center;
+            position: absolute;
+            top: 50px;
+            left: 0px;
+        }
+       
+       
+    </style>
+</head>
+
+<body>
+<div class="loading"></div>
+<div class="content">
+<div class="top">
+    <span>FRUIT &nbsp MEMORY</span>
+</div>
+<div class="gamecard">
+    <div id="game"></div>
+</div>
+<div class="gamebutton">
+    <p><input type="button" value="START" id="btn-start"></p>
+    <p><input type="button" value="隨機提示" id="btn-show"></p>
+    <div id="div-time">
+    時間
+        <span id="text-time">180</span>
+    </div>
+    <div id="div-score">
+        分數
+        <span id="text-score">0</span>
+    </div>
+</div>
+</div>
+<div id="music"></div>
+<script src="jquery-3.5.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script>
+    // 設置網頁載入效果
+    setTimeout(()=>{
+        $(".loading").fadeOut(1000,0);
+    },5000)
+
+    let score = 0;
+    let timeleft = 180;
+    let gametimer = 0;
+    let inGame = false;
+    $("#btn-show").attr("disabled", true);
+
+
+     // 產生16張卡片
+    for (let i = 0; i < 32; i++) {
+            $("#game").append(`<div class="card">
+                 <div class="front"></div>
+                 <div class="back"></div>
+                 </div>`)
+        }
+
+
+        $("#btn-start").click(function () {
+            $(this).attr("disabled", true);
+            $(this).css("color","rgba(55,55,55,0.8)").css("background","rgba(233,233,233,0.8)").css("border","5px solid rgba(80,80,80,0.8)").css("cursor","auto");
+            $("#btn-show").attr("disabled", false);
+            $("#btn-show").css("color","wheat").css("background","rgb(233,139,62)").css("border","5px solid rgb(238,182,108)").css("cursor","pointer");
+            $("#game").html("");
+            $("#music").html("");
+            $("#text-time").css("color","rgb(0, 0, 0)");
+            for (let i = 0; i < 32; i++) {
+                $("#game").append(`<div class="card">
+                 <div class="front"></div>
+                 <div class="back"></div>
+                 </div>`)
+            }
+
+            inGame = true;
+
+            score = 0;
+            $("#text-score").text(score);
+            timeleft = 180;
+            $("#text-time").text(timeleft);
+
+            // 加入正面(圖案及字母)的卡片，每組牌設置一配對的class
+            for (let i = 0; i < $(".card").length / 2; i++) {
+                // card長度除2；因檔案名從1開始，故+1
+                $(".card").eq(i).find(".front").css("background-image", `url(./img/fruitA${i + 1}.png)`);
+                $(".card").eq(i).addClass(`card${i + 1}`);
+                $(".card").eq(i + ($(".card").length / 2)).find(".front").css("background-image", `url(./img/fruitB${i + 1}.png)`);
+                $(".card").eq(i + ($(".card").length / 2)).addClass(`card${i + 1}`);
+                // 字母牌加入音效class
+                $(".card").eq(i + ($(".card").length / 2)).find(".front").addClass(`music${i + 1}`);
+            }
+
+
+            for (let i = 0; i < 60; i++) {
+                // 隨機抽一張牌，移動到隨機一張牌後面
+                // 打亂了i次
+                let target = Math.round(Math.random() * $(".card").length);
+                $(".card").eq(target).insertAfter($(".card").eq(i));
+            }
+
+            $(".card").on("click", function () {
+                // 選到字母牌即加入該字母的音效
+                for (let i = 0; i < $(".card").length / 2; i++) {
+                    if ($(this).find(".front").hasClass(`music${i + 1}`)) {
+                        $(this).find(".front").append(`<audio src="./music/fruit${i+1}.mp3" autoplay></audio>`)
+                    }
+                }
+
+                // 如果已翻開的牌數量小於2，且這張還沒翻開
+                if ($(".open").length < 2 && !$(this).hasClass("open"))
+                    $(this).addClass("open")
+
+                // 翻開兩張牌了
+                if ($(".open").length == 2) {
+                    setTimeout(() => {
+                        // 如果兩張一樣    
+                        $(".open").removeClass("open");
+                    }, 1000)
+
+                    if ($(".open").eq(0).attr("class") == $(".open").eq(1).attr("class")) {
+                        $(".open").fadeTo(1000, 0).addClass("ok");
+                        // 加入歡呼隨機音效
+                        const cheerNum=Math.floor(Math.random() *4+1)
+                        setTimeout(()=>{
+                        $("#music").append(`<audio src="./music/cheer${cheerNum}.mp3" autoplay></audio>`)
+                        },600)
+                        
+                        if (timeleft > 0) {
+                            score += 5;
+                            $("#text-score").text(score);
+                        }
+                    }
+                }
+            })
+
+            gametimer = setInterval(() => {
+                timeleft--;
+                $("#text-time").text(timeleft);
+
+                if(timeleft<=5){
+                    $("#text-time").css("color","rgb(255, 20, 20)");
+
+                }
+
+                // 如果時間到或牌全部翻成功，則遊戲結束
+                if (timeleft == 0 || $(".ok").length == $(".card").length) {
+                    clearInterval(gametimer);
+                    // 卡牌全翻成功且分數大於0，則跳出過關訊息
+                    if ($(".ok").length == $(".card").length && score > 0) {
+                        // 等待1秒淡出後再跳訊息
+                        setTimeout(() => {
+                            $("#music").append(`<audio src="./music/win.mp3" autoplay></audio>`)
+                            Swal.fire({
+                                icon: "success",
+                                title: "恭喜",
+                                text: "恭喜過關",
+                            })
+                        }, 1000)
+                    }
+                    // 跳出輸了訊息
+                    else {
+                        setTimeout(() => {
+                            $("#music").append(`<audio src="./music/lose.mp3" autoplay></audio>`)
+                            Swal.fire({
+                                icon: "error",
+                                title: "輸了",
+                                text: "再接再厲",
+                            })
+                        }, 1000)
+                    }
+
+                    setTimeout(()=>{
+                    inGame = false;
+                    $(this).attr("disabled", false);
+                    $(this).css("color","rgb(248,28,28)").css("background","rgb(226,169,169)").css("border","5px solid rgb(243,89,89)").css("cursor","pointer");
+                    $("#btn-show").attr("disabled", true);
+                    $("#btn-show").css("color","rgba(255,255,255,0.8)").css("background","rgba(64,64,64,0.8)").css("border","5px solid rgba(230,230,230,0.8)").css("cursor","auto");
+                    },1500)
+                }
+            }, 1000)
+        })
+
+        // 隨機提示按鈕
+        $("#btn-show").click(function () {
+            // 每按一次扣分
+            score--;
+            $("#text-score").text(score);
+            // 翻牌時不能按隨機提示按鈕
+            $(this).attr("disabled", true);
+
+            // 隨機選兩張牌翻牌
+            for (let i = 0; i < 1; i++) {
+                let show1 = Math.floor(Math.random() * $(".card").length);
+                let show2 = Math.floor(Math.random() * $(".card").length);
+                //若隨機數字一樣或隨機數字的卡牌已經配對成功，則重新計算隨機數字
+                if (show1 == show2 || $(".card").eq(show1).hasClass("ok") || $(".card").eq(show2).hasClass("ok")) {
+                    i--;
+                    continue;
+                }
+                else {
+                    // 加入翻牌動作的class
+                    $(".card").eq(show1).addClass("open");
+                    $(".card").eq(show2).addClass("open");
+                    // 加入字母牌翻牌音效
+                    for (let i = 0; i < $(".card").length / 2; i++) {
+                    if ( $(".card").eq(show1).find(".front").hasClass(`music${i + 1}`)) {
+                        $(".card").eq(show1).find(".front").append(`<audio src="./music/fruit${i+1}.mp3" autoplay></audio>`)
+                    }
+                    else if($(".card").eq(show2).find(".front").hasClass(`music${i + 1}`)){
+                        $(".card").eq(show2).find(".front").append(`<audio src="./music/fruit${i+1}.mp3" autoplay></audio>`)
+                    }
+                }
+                    setTimeout(() => {
+                        // 翻完牌後將翻牌動作的class刪除
+                        $(".card").eq(show1).removeClass("open")
+                        $(".card").eq(show2).removeClass("open")
+                        // 翻完牌後開起隨機提示按鈕 
+                        $(this).attr("disabled", false);
+                    }, 1000)
+                }
+            }
+        })
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
